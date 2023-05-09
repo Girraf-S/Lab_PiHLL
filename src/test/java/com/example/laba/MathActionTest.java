@@ -1,6 +1,8 @@
 package com.example.laba;
 
 import com.example.laba.Service.MathAction;
+import com.example.laba.Service.Params;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -25,5 +27,22 @@ class MathActionTest {
         catch (Exception e){
             System.out.println(e.getMessage());
         }
+    }
+    @AfterAll
+    @Test
+    static void checkInput(){
+        mathAction.setX(104);
+        try{
+            mathAction.getResult();
+        }
+        catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+    }
+    @Test
+    void parse(){
+        Params params=new Params();
+
+
     }
 }

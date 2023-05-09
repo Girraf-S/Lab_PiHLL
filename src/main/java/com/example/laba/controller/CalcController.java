@@ -2,6 +2,7 @@ package com.example.laba.controller;
 
 import com.example.laba.Calc;
 import com.example.laba.Service.MathAction;
+import com.example.laba.Service.Params;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -23,12 +24,19 @@ public class CalcController {
         return new Calc(mathAction.getX(), mathAction.getY(), mathAction.getMode(), result);
     }
     @GetMapping("/request")
-
-    public @NotNull ResponseEntity postController(@RequestBody MathAction action) {
+    public @NotNull ResponseEntity postController(@RequestBody Params params) {
+        MathAction action;
+        try {
+             action = new MathAction(params);
+        }catch (NumberFormatException e){
+            return ResponseEntity.ok(e.getMessage());
+        }catch (IllegalArgumentException e){
+            return ResponseEntity.ok(e.getMessage());
+        }
         String result=null;
         try{
             result=action.getResult();
-        }catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e){
             return ResponseEntity.ok(e.getMessage());
         }
         return ResponseEntity.ok(result);

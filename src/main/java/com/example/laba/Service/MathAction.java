@@ -18,50 +18,25 @@ public class MathAction {
         this.y=y;
         this.mode=mode;
     }
-    private void rightArgument(){
-        boolean condition =true;
-        String xMessage="";
-        String yMessage="";
-        String modeMessage="";
-        char[] checkX=String.valueOf(this.x).toCharArray();
-        char[] checkY=String.valueOf(this.y).toCharArray();
-        for (int i = 0; i < checkX.length; i++) {
-            if (checkX[i] >= '0' && checkX[i] <= '9') {
-                continue;
-            } else {
-                xMessage = "неверный параметр x\n";
-                break;
-            }
+    public MathAction(Params params){
+        try {
+            this.x = Integer.parseInt(params.getX());
+        }catch (NumberFormatException e){
+            throw new NumberFormatException("неверный параметр x");
         }
-        for (int i = 0; i < checkY.length; i++) {
-            if (checkY[i] >= '0' && checkY[i] <= '9')
-                continue;
-            else {
-                yMessage = "неверный параметр y\n";
-                break;
-            }
+        try {
+            this.y = Integer.parseInt(params.getY());
+        }catch (NumberFormatException e){
+            throw new NumberFormatException("неверный параметр y");
         }
+        this.mode=params.getMode().toCharArray()[0];
         if(mode!='/'&&
                 mode!='*'&&
                 mode!='+'&&
-                mode!='-')
-            modeMessage="неверная опция mode";
-        if(xMessage.equals("")&&
-                yMessage.equals("")&&
-                modeMessage.equals("")) {
-            return;
-        }
-        else {
-            throw new IllegalArgumentException(xMessage+yMessage+modeMessage);
-        }
+                mode!='-') throw new IllegalArgumentException("неверная опция mode");
     }
+
     public String getResult() {
-        try {
-            rightArgument();
-        }
-        catch (IllegalArgumentException e){
-            throw e;
-        }
         switch (mode){
             case '-': result=String.valueOf(x-y);break;
             case '+': result=String.valueOf(x+y);break;
@@ -71,8 +46,10 @@ public class MathAction {
                     result = "Деление на ноль запрещено законом РБ";
                     throw new IllegalArgumentException("Деление на ноль... серьезно...");
                 }
-                else
-                    result=String.valueOf(x/y);break;
+                else {
+                    result = String.valueOf(x / y);
+                    break;
+                }
             default:
                 result="no option " +String.valueOf(mode);
         }
