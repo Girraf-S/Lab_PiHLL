@@ -22,39 +22,47 @@ public class MathAction {
         try {
             this.x = Integer.parseInt(params.getX());
         }catch (NumberFormatException e){
-            throw new NumberFormatException("неверный параметр x");
+            throw new NumberFormatException("неверный параметр x\n");
         }
         try {
             this.y = Integer.parseInt(params.getY());
         }catch (NumberFormatException e){
-            throw new NumberFormatException("неверный параметр y");
+            throw new NumberFormatException("неверный параметр y\n");
         }
         this.mode=params.getMode().toCharArray()[0];
         if(mode!='/'&&
                 mode!='*'&&
                 mode!='+'&&
-                mode!='-') throw new IllegalArgumentException("неверная опция mode");
+                mode!='-') throw new IllegalArgumentException("неверная опция mode\n");
     }
-
     public String getResult() {
-        switch (mode){
-            case '-': result=String.valueOf(x-y);break;
-            case '+': result=String.valueOf(x+y);break;
-            case '*': result=String.valueOf(x*y);break;
+        switch (mode) {
+            case '-':
+                result = String.valueOf(x - y);
+                break;
+            case '+':
+                result = String.valueOf(x + y);
+                break;
+            case '*':
+                result = String.valueOf(x * y);
+                break;
             case '/':
-                if(y==0) {
-                    result = "Деление на ноль запрещено законом РБ";
-                    throw new IllegalArgumentException("Деление на ноль... серьезно...");
-                }
-                else {
+                if (y == 0) {
+                    result = "Деление на ноль запрещено законом РБ\n";
+                    throw new IllegalArgumentException(result);
+                } else {
                     result = String.valueOf(x / y);
                     break;
                 }
-            default:
-                result="no option " +String.valueOf(mode);
         }
         return result;
     }
+
+    public String toEquation(){
+        String equation ="%d %c %d";
+        return String.format(equation, x, mode, y);
+    }
+
 
     public int getX() {
         return x;
