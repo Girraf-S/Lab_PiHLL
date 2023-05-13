@@ -54,7 +54,7 @@ public class MathAction {
     }
 
     public String getResult() {
-        //Cache cache =new Cache();
+        CounterThread counter=new CounterThread();
         String equation = toEquation();
         if ((result = cache.get(equation)) == null) {
             switch (mode) {
@@ -82,6 +82,7 @@ public class MathAction {
                     }
             }
         } else logger.info("результат взят из кэша");
+        counter.run();
         return result;
     }
 
@@ -90,6 +91,13 @@ public class MathAction {
         return String.format(equation, x, mode, y);
     }
 
+    public static List<String> getList(List<Params> params){
+        List<String> stringList=params.stream().map(p -> {
+            p.setResult(new MathAction(p).getResult());
+            return p.toString();
+        }).collect(Collectors.toList());
+        return stringList;
+    }
 //    public List<Params> getResultForList(Params params) {
 //        list.add(params);
 //        List<Params>newList = list.stream().map(p -> {

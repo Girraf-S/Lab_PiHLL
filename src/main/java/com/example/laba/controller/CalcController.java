@@ -31,32 +31,24 @@ public class CalcController {
         return new Calc(mathAction.getX(), mathAction.getY(), mathAction.getMode(), result);
     }
 
-    @GetMapping("/request")
+    @GetMapping("/calculator")
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public @NotNull ResponseEntity getController(@RequestBody Params params) {
         MathAction action;
-        counter.run();
         String result = "количество запусков: " + Counter.getCounter();
         try {
             action = new MathAction(params);
-        } catch (NumberFormatException e) {//неверный параметр x или y
+        } catch (NumberFormatException e) {                        //неверный параметр x или y
             return ResponseEntity.ok(String.format("%s%s", e.getMessage(), result));
-        } catch (IllegalArgumentException e) {//неверная опция mode
+        } catch (IllegalArgumentException e) {                      //неверная опция mode
             return ResponseEntity.ok(String.format("%s%s", e.getMessage(), result));
         }
         try {
-//            List<String> bulkResult= Arrays.asList(params.getX(), params.getY(), params.getMode());
-//            Comparator<String> cmp = (x, y)-> Integer.parseInt((
-//                    action.getMode()=='+'? String.valueOf(Integer.parseInt(x)+Integer.parseInt(y)):
-//                    action.getMode()=='-'? String.valueOf(Integer.parseInt(x)-Integer.parseInt(y)):
-//                    action.getMode()=='*'? String.valueOf(Integer.parseInt(x)*Integer.parseInt(y)):
-//                    String.valueOf(Integer.parseInt(x)/Integer.parseInt(y))));
-//            String res;
-            String resultAction;//value
-            String equation = action.toEquation();//key
+            String resultAction;                             //value
+            String equation = action.toEquation();          //key
             resultAction = action.getResult();
             result = String.format("%s = %s\n%s", equation, resultAction, result);
-        } catch (IllegalArgumentException e) {//деление на ноль
+        } catch (IllegalArgumentException e) {           //деление на ноль
             return ResponseEntity.ok(String.format("%s%s", e.getMessage(), result));
         }
         return ResponseEntity.ok(result);
@@ -74,42 +66,9 @@ public class CalcController {
     public List<String> show(){
         return cache.showCash();
     }
-    @PostMapping("/request")
-    public @NotNull ResponseEntity postController(@RequestBody Params params){
-        MathAction action;
-        counter.run();
-        String result = "количество запусков: " + Counter.getCounter();
-        try {
-            action = new MathAction(params);
-        } catch (NumberFormatException e) {//неверный параметр x или y
-            return ResponseEntity.ok(String.format("%s%s", e.getMessage(), result));
-        } catch (IllegalArgumentException e) {//неверная опция mode
-            return ResponseEntity.ok(String.format("%s%s", e.getMessage(), result));
-        }
-        try {
-            List<String> list = new ArrayList<>();//Arrays.asList(params.getX(), params.getY(), params.getMode());
-            Collections.addAll(list, params.getX(), params.getY(), params.getMode());
-
-//            String res = (x, y) -> Integer.parseInt((
-//                    action.getMode() == '+' ? String.valueOf(Integer.parseInt(x) + Integer.parseInt(y)) :
-//                            action.getMode() == '-' ? String.valueOf(Integer.parseInt(x) - Integer.parseInt(y)) :
-//                                    action.getMode() == '*' ? String.valueOf(Integer.parseInt(x) * Integer.parseInt(y)) :
-//                                    String.valueOf(Integer.parseInt(x) / Integer.parseInt(y))));
-            //String res = Stream.of(action).map(MathAction::getResult).toString();
-            String resultAction;
-            String equation = action.toEquation();
-            String haveCash = "cash";
-            if (cache.containsKey(equation)) resultAction = cache.get(equation);
-            else {
-                resultAction = action.getResult();
-                cache.put(equation, resultAction);
-                haveCash = null;
-            }
-            result = String.format("%s = %s\n%s\n%s", equation, resultAction, result, haveCash);
-        } catch (IllegalArgumentException e) {//деление на ноль
-            return ResponseEntity.ok(String.format("%s%s", e.getMessage(), result));
-        }
-        return ResponseEntity.ok(result);
+    @PostMapping("/calculator/list")
+    public List<String> listCalculator(@RequestBody List<Params> params){
+        return MathAction.getList(params);
     }
 
 }
