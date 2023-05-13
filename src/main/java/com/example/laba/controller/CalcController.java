@@ -1,7 +1,7 @@
 package com.example.laba.controller;
 
 import com.example.laba.Calc;
-import com.example.laba.Cash.Cash;
+import com.example.laba.Cash.Cache;
 import com.example.laba.Resources.Counter;
 import com.example.laba.Service.CounterThread;
 import com.example.laba.Service.MathAction;
@@ -11,21 +11,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.*;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 @RestController
 @Validated
 public class CalcController {
     CounterThread counter = new CounterThread();
-    Cash cash = new Cash();
+    Cache cache = new Cache();
 
     @GetMapping("/calculate")
     public Calc calc(@RequestParam("x") String x,
-                     @RequestParam("y") @Valid String y,
+                     @RequestParam("y") String y,
                      @RequestParam("mode") String mode) {
         char temp = mode.toCharArray()[0];
         String result = null;
@@ -55,20 +52,27 @@ public class CalcController {
 //                    action.getMode()=='*'? String.valueOf(Integer.parseInt(x)*Integer.parseInt(y)):
 //                    String.valueOf(Integer.parseInt(x)/Integer.parseInt(y))));
 //            String res;
-            String resultAction;
-            String equation = action.toEquation();
-            String haveCash = "cash";
-            if (cash.containsKey(equation)) resultAction = cash.get(equation);
-            else {
-                resultAction = action.getResult();
-                cash.put(equation, resultAction);
-                haveCash = null;
-            }
-            result = String.format("%s = %s\n%s\n%s", equation, resultAction, result, haveCash);
+            String resultAction;//value
+            String equation = action.toEquation();//key
+            resultAction = action.getResult();
+            result = String.format("%s = %s\n%s", equation, resultAction, result);
         } catch (IllegalArgumentException e) {//деление на ноль
             return ResponseEntity.ok(String.format("%s%s", e.getMessage(), result));
         }
         return ResponseEntity.ok(result);
+    }
+    @GetMapping("/counter")
+    public int getCounter(){
+        return counter.getCounter();
+    }
+    @GetMapping("/counter/increment")
+    public int incCounter(){
+        counter.run();
+        return counter.getCounter();
+    }
+    @GetMapping("/showCash")
+    public List<String> show(){
+        return cache.showCash();
     }
     @PostMapping("/request")
     public @NotNull ResponseEntity postController(@RequestBody Params params){
@@ -95,10 +99,10 @@ public class CalcController {
             String resultAction;
             String equation = action.toEquation();
             String haveCash = "cash";
-            if (cash.containsKey(equation)) resultAction = cash.get(equation);
+            if (cache.containsKey(equation)) resultAction = cache.get(equation);
             else {
                 resultAction = action.getResult();
-                cash.put(equation, resultAction);
+                cache.put(equation, resultAction);
                 haveCash = null;
             }
             result = String.format("%s = %s\n%s\n%s", equation, resultAction, result, haveCash);

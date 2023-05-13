@@ -1,9 +1,11 @@
 package com.example.laba.Service;
-import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import java.util.IllegalFormatException;
+import com.example.laba.Cash.Cache;
+import com.example.laba.controller.CalcController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class MathAction {
     private int x;
@@ -12,57 +14,109 @@ public class MathAction {
 
     private char mode;
     private String result;
+    Cache cache = new Cache();
+    private static Logger logger = LoggerFactory.getLogger(CalcController.class);
 
-    public MathAction(int x, int y, char mode){
-        this.x=x;
-        this.y=y;
-        this.mode=mode;
+    @Autowired
+    public MathAction(Cache cache) {
+        logger.info("dependency injection ");
+        this.cache = cache;
     }
-    public MathAction(Params params){
+
+    public MathAction(int x, int y, char mode) {
+        this.x = x;
+        this.y = y;
+        this.mode = mode;
+    }
+
+
+    public MathAction(Params params) {
         try {
             this.x = Integer.parseInt(params.getX());
-        }catch (NumberFormatException e){
-            throw new NumberFormatException("неверный параметр x\n");
+        } catch (NumberFormatException e) {
+            logger.error("Неверный параметр x");
+            throw new NumberFormatException("Неверный параметр x\n");
         }
         try {
             this.y = Integer.parseInt(params.getY());
-        }catch (NumberFormatException e){
-            throw new NumberFormatException("неверный параметр y\n");
+        } catch (NumberFormatException e) {
+            logger.error("Неверный параметр у");
+            throw new NumberFormatException("Неверный параметр y\n");
         }
-        this.mode=params.getMode().toCharArray()[0];
-        if(mode!='/'&&
-                mode!='*'&&
-                mode!='+'&&
-                mode!='-') throw new IllegalArgumentException("неверная опция mode\n");
+        this.mode = params.getMode().toCharArray()[0];
+        if (mode != '/' &&
+                mode != '*' &&
+                mode != '+' &&
+                mode != '-') {
+            logger.error("Неверный параметр mode");
+            throw new IllegalArgumentException("неверная опция mode\n");
+        }
     }
+
     public String getResult() {
-        switch (mode) {
-            case '-':
-                result = String.valueOf(x - y);
-                break;
-            case '+':
-                result = String.valueOf(x + y);
-                break;
-            case '*':
-                result = String.valueOf(x * y);
-                break;
-            case '/':
-                if (y == 0) {
-                    result = "Деление на ноль запрещено законом РБ\n";
-                    throw new IllegalArgumentException(result);
-                } else {
-                    result = String.valueOf(x / y);
+        //Cache cache =new Cache();
+        String equation = toEquation();
+        if ((result = cache.get(equation)) == null) {
+            switch (mode) {
+                case '-':
+                    result = String.valueOf(x - y);
+                    cache.put(equation, result);
                     break;
-                }
-        }
+                case '+':
+                    result = String.valueOf(x + y);
+                    cache.put(equation, result);
+                    break;
+                case '*':
+                    result = String.valueOf(x * y);
+                    cache.put(equation, result);
+                    break;
+                case '/':
+                    if (y == 0) {
+                        logger.info("Нарушение конвенкции о запрете деления на ноль");
+                        result = "Деление на ноль запрещено законом РБ\n";
+                        throw new IllegalArgumentException(result);
+                    } else {
+                        result = String.format("%.3f", Double.valueOf(x) / Double.valueOf(y));
+                        cache.put(equation, result);
+                        break;
+                    }
+            }
+        } else logger.info("результат взят из кэша");
         return result;
     }
 
-    public String toEquation(){
-        String equation ="%d %c %d";
+    public String toEquation() {
+        String equation = "%d %c %d";
         return String.format(equation, x, mode, y);
     }
 
+//    public List<Params> getResultForList(Params params) {
+//        list.add(params);
+//        List<Params>newList = list.stream().map(p -> {
+//            try {
+//                this.x = Integer.parseInt(params.getX());
+//            } catch (NumberFormatException e) {
+//                logger.error("Неверный параметр x");
+//                throw new NumberFormatException("Неверный параметр x\n");
+//            }
+//            try {
+//                this.y = Integer.parseInt(params.getY());
+//            } catch (NumberFormatException e) {
+//                logger.error("Неверный параметр у");
+//                throw new NumberFormatException("Неверный параметр y\n");
+//            }
+//            this.mode = params.getMode().toCharArray()[0];
+//            if (mode != '/' &&
+//                    mode != '*' &&
+//                    mode != '+' &&
+//                    mode != '-') {
+//                logger.error("Неверный параметр mode");
+//                throw new IllegalArgumentException("неверная опция mode\n");
+//            }
+//        });
+//
+//        return list;
+//    }
 
     public int getX() {
         return x;
