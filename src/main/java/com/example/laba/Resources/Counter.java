@@ -1,12 +1,15 @@
 package com.example.laba.Resources;
 
+import org.springframework.stereotype.Service;
+
+@Service
 public class Counter {
-    private static Integer counter = 0;
-    public static int increment(){
+    private Integer counter = 0;
+    public int increment(){
         counter++;
         return counter;
     }
-    public static int getCounter(){
+    public int getCounter(){
         return counter;
     }
 

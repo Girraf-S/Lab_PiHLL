@@ -1,5 +1,6 @@
 package com.example.laba;
 
+import com.example.laba.Service.DataBaseService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -10,4 +11,8 @@ public class LabaApplication {
 		SpringApplication.run(LabaApplication.class, args);
 	}
 
+//	public static void main(String[] args) {
+//		DataBaseService dataBaseService =  new DataBaseService();
+//		dataBaseService.select();
+//	}
 }
